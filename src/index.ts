@@ -1,5 +1,3 @@
-import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
-
 const R = require('ramda');
 
 
@@ -154,37 +152,71 @@ const R = require('ramda');
 
 interface stringParts {
   num: number,
-  nextGroup: string,
-  restOfStr: string
+  group: string,
+  nextNum: number;
+  nextGroup: string
 }
 
 this.getGroup = (str: string): stringParts => {
-  var nextGroup; 
-  var restOfStr = str.slice(str.indexOf(']') + 1);
+  var group, nextNum; 
+  var nextGroup = str.slice(str.indexOf(']') + 1);
   var num = parseInt(str[str.indexOf('[') - 1])
   if (str.indexOf(']') > -1) {
-    nextGroup = str.slice(str.indexOf('[') + 1, str.indexOf(']'));
+    group = str.slice(str.indexOf('[') + 1, str.indexOf(']'));
   } else {
-    nextGroup = str.slice(str.indexOf('[') + 1);
+    group = str.slice(str.indexOf('[') + 1);
   }
-  return { num, nextGroup, restOfStr };
+  if (nextGroup.includes('[')) {
+    [nextNum, nextGroup] = nextGroup.split('[');
+  }
+  return { num, group, nextNum: parseInt(nextNum), nextGroup };
+}
+let builtString = '';
+
+this.buildString = ({num, group, nextNum, nextGroup}) => {
+  let first, second;
+  if (group.includes('[')) {
+    if (group.match(/[a-z[]/gi)) {
+      console.log('PROBLEM', );
+      var matchArr = group.match(/[a-z[]/gi);
+      first = matchArr.splice(0, matchArr.indexOf('[')).join('');
+      second = matchArr.splice(matchArr.indexOf('[')).join('');
+    } else {
+      first = group.match(/[a-z]/gi).join('');
+    }
+  }
+  while (num > 0) {
+    console.log('GETTING THERE');
+    builtString += first;
+    num--;
+  }
+  // if (group.match(/[0-9]/gi)) {
+  //   nextNum = group.match(/[0-9]/gi);
+  //   while (nextNum > 0) {
+  //     builtString += second;
+  //     nextNum--;
+  //   }
+  // }
+
 }
 
 this.stringBuilder = (str: string): string => {
-  let { num, nextGroup, restOfStr } = this.getGroup(str);
-  let builtString = '';
-  while (nextGroup.indexOf('[') > -1) {
-    while (num > 0) {
-      
-      num--
-    }
-    { num, nextGroup, restOfStr } = this.getGroup(nextGroup)
+  var strObj = this.getGroup(str);
+  if (strObj.group.indexOf('[') > -1) {
+    this.buildString(strObj)
+    console.log('builtString', builtString);
+    return this.stringBuilder(strObj.group);
+  } else {
+    this.buildString(strObj);
   }
-  return builtString;
+  console.log('match', strObj.nextGroup.match(/[a-z]/gi));
+  if (strObj.nextGroup.match(/[a-z]/gi)) {
+    return this.stringBuilder(strObj.nextGroup);
+  }
 }
-console.log('getGroup', this.getGroup("3[a]2[bc]"));
-console.log('getGroup', this.getGroup("3[a2[c]]"));
-console.log('getGroup', this.getGroup("2[abc]3[cd]ef"));
-// this.stringBuilder("3[a]2[bc]"); // "aaabcbc"
-// this.stringBuilder("3[a2[c]]"); // "accaccacc"
-// this.stringBuilder("2[abc]3[cd]ef"); // "abcabccdcdcdef"
+// console.log('getGroup', this.getGroup("3[a]2[bc]")); //     { num: 3, group: 'a', nextNum: 2, nextGroup: 'bc]' }
+// console.log('getGroup', this.getGroup("3[a2[c]]")); //      { num: 3, group: 'a2[c', nextNum: NaN, nextGroup: ']' }
+// console.log('getGroup', this.getGroup("2[abc]3[cd]ef")); // { num: 2, group: 'abc', nextNum: 3, nextGroup: 'cd]ef' }
+console.log('stringBuilder', this.stringBuilder("3[a]2[bc.]")); // "aaabcbc"
+// console.log('stringBuilder', this.stringBuilder("3[a2[c]]")); // "accaccacc"
+// console.log('stringBuilder', this.stringBuilder("2[abc]3[cd]ef")); // "abcabccdcdcdef"
