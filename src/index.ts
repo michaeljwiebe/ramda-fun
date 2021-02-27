@@ -153,43 +153,46 @@ const R = require('ramda');
 interface stringParts {
   num: number,
   group: string,
-  nextNum: number;
-  nextGroup: string
+  nextNum?: number;
+  nextGroup?: string
 }
 
 this.getGroup = (str: string): stringParts => {
-  var group, nextNum; 
-  var nextGroup = str.slice(str.indexOf(']') + 1);
-  var num = parseInt(str[str.indexOf('[') - 1])
+  var num, group, nextNum, nextGroup, responseObject; 
+  let strObj = { num, group};
   if (str.indexOf(']') > -1) {
     group = str.slice(str.indexOf('[') + 1, str.indexOf(']'));
-  } else {
+    nextGroup = str.slice(str.indexOf(']') + 1);
+    if (nextGroup.includes('[')) {
+      [nextNum, nextGroup] = nextGroup.split('[');
+      nextNum = parseInt(nextNum);
+      responseObject = Object.assign({nextNum, nextGroup}, strObj);
+    }
+  } else if (str.indexOf('[') > -1) {
+    num = parseInt(str[str.indexOf('[') - 1])
     group = str.slice(str.indexOf('[') + 1);
   }
-  if (nextGroup.includes('[')) {
-    [nextNum, nextGroup] = nextGroup.split('[');
-  }
-  return { num, group, nextNum: parseInt(nextNum), nextGroup };
+  Object.assign(strObj, responseObject);
+  return responseObject;
 }
 let builtString = '';
 
-this.buildString = ({num, group, nextNum, nextGroup}) => {
+this.buildString = ({num, group, nextNum = 0, nextGroup = ''}) => {
   let first, second;
   if (group.includes('[')) {
-    if (group.match(/[a-z[]/gi)) {
-      console.log('PROBLEM', );
-      var matchArr = group.match(/[a-z[]/gi);
-      first = matchArr.splice(0, matchArr.indexOf('[')).join('');
-      second = matchArr.splice(matchArr.indexOf('[')).join('');
-    } else {
-      first = group.match(/[a-z]/gi).join('');
-    }
+    var matchArr = group.match(/[a-z[]/gi);
+    first = matchArr.splice(0, matchArr.indexOf('[')).join('');
+    second = matchArr.splice(matchArr.indexOf('[') + 1).join('');
+  } else {
+    first = group.match(/[a-z]/gi).join('');
   }
+  console.log('first', first);
+  console.log('second', second);
   while (num > 0) {
-    console.log('GETTING THERE');
     builtString += first;
     num--;
   }
+  console.log('builtString', builtString);
   // if (group.match(/[0-9]/gi)) {
   //   nextNum = group.match(/[0-9]/gi);
   //   while (nextNum > 0) {
@@ -201,22 +204,24 @@ this.buildString = ({num, group, nextNum, nextGroup}) => {
 }
 
 this.stringBuilder = (str: string): string => {
+  builtString = '';
   var strObj = this.getGroup(str);
+  console.log('strObj', strObj);
   if (strObj.group.indexOf('[') > -1) {
     this.buildString(strObj)
-    console.log('builtString', builtString);
     return this.stringBuilder(strObj.group);
   } else {
     this.buildString(strObj);
   }
-  console.log('match', strObj.nextGroup.match(/[a-z]/gi));
-  if (strObj.nextGroup.match(/[a-z]/gi)) {
+  if (R.pathOr('', ['nextGroup'], strObj).match(/[a-z]/gi)) {
+    console.log('strObj.nextGroup', strObj.nextGroup);
     return this.stringBuilder(strObj.nextGroup);
   }
+  return builtString;
 }
 // console.log('getGroup', this.getGroup("3[a]2[bc]")); //     { num: 3, group: 'a', nextNum: 2, nextGroup: 'bc]' }
 // console.log('getGroup', this.getGroup("3[a2[c]]")); //      { num: 3, group: 'a2[c', nextNum: NaN, nextGroup: ']' }
 // console.log('getGroup', this.getGroup("2[abc]3[cd]ef")); // { num: 2, group: 'abc', nextNum: 3, nextGroup: 'cd]ef' }
 console.log('stringBuilder', this.stringBuilder("3[a]2[bc.]")); // "aaabcbc"
-// console.log('stringBuilder', this.stringBuilder("3[a2[c]]")); // "accaccacc"
-// console.log('stringBuilder', this.stringBuilder("2[abc]3[cd]ef")); // "abcabccdcdcdef"
+console.log('stringBuilder', this.stringBuilder("3[a2[c]]")); // "accaccacc"
+console.log('stringBuilder', this.stringBuilder("2[abc]3[cd]ef")); // "abcabccdcdcdef"
