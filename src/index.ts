@@ -150,73 +150,91 @@ const R = require('ramda');
 
 // ================================ build string with num x [val] and return vals pushed together
 
-interface stringParts {
-  num: number,
-  group: string,
-  nextNum: number;
-  nextGroup: string
-}
+// interface stringParts {
+//   num: number,
+//   group: string,
+//   nextNum: number;
+//   nextGroup: string
+// }
 
-this.getGroup = (str: string): stringParts => {
-  var group, nextNum; 
-  var nextGroup = str.slice(str.indexOf(']') + 1);
-  var num = parseInt(str[str.indexOf('[') - 1])
-  if (str.indexOf(']') > -1) {
-    group = str.slice(str.indexOf('[') + 1, str.indexOf(']'));
-  } else {
-    group = str.slice(str.indexOf('[') + 1);
-  }
-  if (nextGroup.includes('[')) {
-    [nextNum, nextGroup] = nextGroup.split('[');
-  }
-  return { num, group, nextNum: parseInt(nextNum), nextGroup };
-}
-let builtString = '';
+// this.getGroup = (str: string): stringParts => {
+//   var group, nextNum; 
+//   var nextGroup = str.slice(str.indexOf(']') + 1);
+//   var num = parseInt(str[str.indexOf('[') - 1])
+//   if (str.indexOf(']') > -1) {
+//     group = str.slice(str.indexOf('[') + 1, str.indexOf(']'));
+//   } else {
+//     group = str.slice(str.indexOf('[') + 1);
+//   }
+//   if (nextGroup.includes('[')) {
+//     [nextNum, nextGroup] = nextGroup.split('[');
+//   }
+//   return { num, group, nextNum: parseInt(nextNum), nextGroup };
+// }
+// let builtString = '';
 
-this.buildString = ({num, group, nextNum, nextGroup}) => {
-  let first, second;
-  if (group.includes('[')) {
-    if (group.match(/[a-z[]/gi)) {
-      console.log('PROBLEM', );
-      var matchArr = group.match(/[a-z[]/gi);
-      first = matchArr.splice(0, matchArr.indexOf('[')).join('');
-      second = matchArr.splice(matchArr.indexOf('[')).join('');
-    } else {
-      first = group.match(/[a-z]/gi).join('');
-    }
-  }
-  while (num > 0) {
-    console.log('GETTING THERE');
-    builtString += first;
-    num--;
-  }
-  // if (group.match(/[0-9]/gi)) {
-  //   nextNum = group.match(/[0-9]/gi);
-  //   while (nextNum > 0) {
-  //     builtString += second;
-  //     nextNum--;
-  //   }
-  // }
+// this.buildString = ({num, group, nextNum, nextGroup}) => {
+//   let first, second;
+//   if (group.includes('[')) {
+//     if (group.match(/[a-z[]/gi)) {
+//       console.log('PROBLEM', );
+//       var matchArr = group.match(/[a-z[]/gi);
+//       first = matchArr.splice(0, matchArr.indexOf('[')).join('');
+//       second = matchArr.splice(matchArr.indexOf('[')).join('');
+//     } else {
+//       first = group.match(/[a-z]/gi).join('');
+//     }
+//   }
+//   while (num > 0) {
+//     console.log('GETTING THERE');
+//     builtString += first;
+//     num--;
+//   }
 
-}
+// }
 
-this.stringBuilder = (str: string): string => {
-  var strObj = this.getGroup(str);
-  if (strObj.group.indexOf('[') > -1) {
-    this.buildString(strObj)
-    console.log('builtString', builtString);
-    return this.stringBuilder(strObj.group);
-  } else {
-    this.buildString(strObj);
-  }
-  console.log('match', strObj.nextGroup.match(/[a-z]/gi));
-  if (strObj.nextGroup.match(/[a-z]/gi)) {
-    return this.stringBuilder(strObj.nextGroup);
-  }
-}
+// this.stringBuilder = (str: string): string => {
+//   var strObj = this.getGroup(str);
+//   if (strObj.group.indexOf('[') > -1) {
+//     this.buildString(strObj)
+//     console.log('builtString', builtString);
+//     return this.stringBuilder(strObj.group);
+//   } else {
+//     this.buildString(strObj);
+//   }
+//   console.log('match', strObj.nextGroup.match(/[a-z]/gi));
+//   if (strObj.nextGroup.match(/[a-z]/gi)) {
+//     return this.stringBuilder(strObj.nextGroup);
+//   }
+// }
 // console.log('getGroup', this.getGroup("3[a]2[bc]")); //     { num: 3, group: 'a', nextNum: 2, nextGroup: 'bc]' }
 // console.log('getGroup', this.getGroup("3[a2[c]]")); //      { num: 3, group: 'a2[c', nextNum: NaN, nextGroup: ']' }
 // console.log('getGroup', this.getGroup("2[abc]3[cd]ef")); // { num: 2, group: 'abc', nextNum: 3, nextGroup: 'cd]ef' }
-console.log('stringBuilder', this.stringBuilder("3[a]2[bc.]")); // "aaabcbc"
+// console.log('stringBuilder', this.stringBuilder("3[a]2[bc.]")); // "aaabcbc"
 // console.log('stringBuilder', this.stringBuilder("3[a2[c]]")); // "accaccacc"
 // console.log('stringBuilder', this.stringBuilder("2[abc]3[cd]ef")); // "abcabccdcdcdef"
+
+// ================================ find matching parts of two strings in an array that look like arrays of numbers converted to strings
+
+function findIntersection(strArr) { 
+  var firstArr = prepArr(strArr[0]);
+  var secondArr = prepArr(strArr[1]);
+
+  const intersections = firstArr.filter(num => {
+    return secondArr.indexOf(num) > -1 ? num : false;
+  })
+
+  return intersections.length ? `"${intersections.join(',')}"` : false;
+}
+
+const sortNums = (nums) => {
+  return nums.sort((a,b) => {
+    return a-b;
+  })
+}
+
+const prepArr = (arr) => {
+  return sortNums(arr.split(',').map(str => parseInt(str)));
+}
+
+console.log(findIntersection(["1, 3, 4, 7, 13", "1, 2, 4, 13, 15"]));
