@@ -1,4 +1,7 @@
-const R = require('ramda');
+import R from 'ramda';
+import { employees } from './employees';
+import { cart } from './cart';
+import { menu } from './menu';
 import {
   median,
   curry,
@@ -15,15 +18,175 @@ import {
   filter,
   prop,
   equals,
-  where
+  where,
+  when,
+  multiply,
+  unless,
+  cond,
+  always,
+  reduce,
+  add,
+  sum,
+  sort,
+  head,
+  sortBy,
+  takeLast,
+  lte,
+  gte,
+  descend,
+  T
 } from 'ramda';
 
+
+// functors are objects that have a value key and a map key. make a new functor by calling the map key 
+// with the value to access it and make a new functor. its 
 
 const squid = { "name": "Squidward", "lovesTech": false, "worksHard": false, age: 222 };
 const sandy = { "name": "Sandy", "lovesTech": true, "worksHard": true, age: 2 };
 const sponge = { "name": "Spongebob", "lovesTech": false, "worksHard": true, age: 23 };
 
 const friends = [squid, sandy, sponge];
+
+// ============================== credit rating
+const scores = [631,604,527,503,800,579,673,513,808,701,833,795];
+const reviewCreditScores = map(score => cond([
+  [lte(800, score), always(`${score} and above is excellent!`)] // 800 is less than or equal to core
+  [lte(700), always(`${score} and above is good`)],
+  [lte(650), always(`${score} and above is fair`)],
+  [always(T), always(`${score} and below is poor`)], // 649 is greater than or equal to score
+])(score));
+
+// console.log(lte(800, 900));
+
+// console.log('scores', reviewCreditScores(scores));
+// ============================== median salary
+
+const toUSD = number => number
+  .toLocaleString('en-US', {
+    style: 'currency', currency: 'USD'
+  });
+
+const greaterThan100k = (arr) => {
+  return map(s => gte(s, 100000) ? s : false, arr);
+}
+
+const getMedianPaycheck = pipe(
+  pluck('salary'),
+  greaterThan100k,
+  filter(s => s),
+  median,
+  (median) => median / 12,
+  toUSD
+)
+
+// console.log(getMedianPaycheck(employees));
+
+
+// ============================== menu exercises
+
+const filterLessThanPriceImproved = (price, items) => {
+  return filter(propSatisfies(lte(price), 'price'), items);
+}
+// console.log('filterLessThanPriceImproved', filterLessThanPriceImproved(12, menu));
+
+const filterLessThanPrice = (price, items) => {
+  return filter((a) => a.price <= price, items);
+}
+// console.log(curry(filterLessThanPrice)(20));
+
+const getBottom3 = takeLast(3);
+const getTop3 = (array) => [ array[0], array[1], array[2] ];
+const sortByRatingDescend = sort(descend(prop('rating')));
+const sortByRating = sort(prop('rating')); // doesn't actually sort items
+// console.log('sortByRating', sortByRatingDescend(menu));
+
+const getTop3MealsFor = curry(pipe(
+  filterLessThanPrice,
+  sortByRatingDescend,
+  getTop3
+))
+
+// console.log('getTop3MealsForCALLED', getTop3(sortByRating(filterLessThanPrice(12, menu))));
+// console.log('getTop3MealsFor', getTop3MealsFor(12)(menu));
+
+// ============================== cart exercises
+const sortByFirstItem = sortBy(prop(0));
+const pairs = [[-1, 1], [-2, 2], [-3, 3]];
+// console.log('sortByFirstItem', sortByFirstItem(pairs)); //=> [[-3, 3], [-2, 2], [-1, 1]]
+
+const getCheapestItemNameImproved = (
+  pipe(
+    sortBy(prop('price')), // takes a prop only
+    head,
+    prop('name')
+  )
+)
+
+// console.log('getCheapestItemNameImproved', getCheapestItemNameImproved(cart));
+
+const getCheapestItemName = (
+  pipe(
+    sort((a,b) => a.price - b.price), // takes a function to use for sorting
+    head,
+    prop('name')
+  )
+)
+
+// console.log('getCheapestItemName', getCheapestItemName(cart));
+
+
+const getCheapestItemPrice = (
+  pipe(
+    pluck('price'),
+    sort((a, b) => a - b),
+    head
+  )
+);
+
+// console.log('getCheapestItemPrice', getCheapestItemPrice(cart));
+
+const getItemPrice = prop('price');
+const getItemPrices = map(i => getItemPrice(i));
+const reduceList = reduce(add, 0); // takes fn, accumulator, data
+const getTotalPrice = pipe(
+  getItemPrices,
+  reduceList
+);
+const getTotalPriceImproved = pipe(
+  pluck('price'),
+  sum
+)
+
+// console.log(getTotalPrice(cart));
+// console.log(getTotalPriceImproved(cart));
+
+// ============================== conditionals
+
+const findAnimal = cond([
+  [equals('lion'), always('Africa and India')],
+  [equals('tiger'), always('China, Russia, India, Vietnam, and many more')],
+  [equals('hyena'), always('African Savannah')],
+  [equals('grizzly bear'), always('North America')],
+  [always(true), always('Not sure, try Googling it!')]
+]);
+
+// console.log(findAnimal('cow'));
+// console.log(findAnimal('hyena'));
+
+
+const hasAccess = true;
+
+const isEven = (num) => num % 2 === 0;
+
+const logAccess = ifElse(() => hasAccess, () => 'has access', () => 'denied')
+const doubleIfEven = when(isEven, multiply(2));
+const doubleIfOdd = unless(isEven, multiply(2));
+
+// console.log('logAccess', logAccess());
+// console.log('doubleIfEven', doubleIfEven(23));
+// console.log('doubleIfEven', doubleIfEven(22));
+// console.log('doubleIfOdd', doubleIfOdd(23));
+// console.log('doubleIfOdd', doubleIfOdd(24));
 
 
 // ============================== keep young adults
@@ -330,11 +493,11 @@ const prepArr = (arr) => {
   return sortNums(arr.split(',').map(str => parseInt(str)));
 }
 
-console.log(prepArr("1, 3, 9, 4, 7, 13"));
-console.log(sortNums(prepArr("1, 3, 9, 4, 7, 13")));
+// console.log(prepArr("1, 3, 9, 4, 7, 13"));
+// console.log(sortNums(prepArr("1, 3, 9, 4, 7, 13")));
 
 
-console.log(findIntersection(["1, 3, 4, 7, 13", "1, 2, 4, 13, 15"]));
+// console.log(findIntersection(["1, 3, 4, 7, 13", "1, 2, 4, 13, 15"]));
 
 // ================================ UpperAndReverseFirstName
 
