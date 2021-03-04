@@ -37,28 +37,40 @@ import {
   T
 } from 'ramda';
 
-
-// functors are objects that have a value key and a map key. make a new functor by calling the map key 
-// with the value to access it and make a new functor. its 
-
-const squid = { "name": "Squidward", "lovesTech": false, "worksHard": false, age: 222 };
-const sandy = { "name": "Sandy", "lovesTech": true, "worksHard": true, age: 2 };
-const sponge = { "name": "Spongebob", "lovesTech": false, "worksHard": true, age: 23 };
-
-const friends = [squid, sandy, sponge];
+/*
+functors 
+  -are objects that have a value key and a map key. 
+  -copy the functor by calling the map key with the value to access it. 
+    const result = map(val => val, functor) => will copy functor to result, can also transform here
+  -map value can be overridden with 'fantasy-land/map`: () => 'overRIDDEN'
+    const functor = {
+      value: 10,
+      'fantasy-land/map': () => 'You have been overridden!'
+    };
+  
+lenses
+  - use to view property of object or copy object and change just lensed value
+    lensProp('name') - use to view property of object
+    lensPath(['department', 'manager', 'firstName']) - use for nested values
+    lens(prop('name'), assoc('name')); - longhand version, prop() allows getting, assoc() setting
+    const bobo = { name: 'Bobo' };
+    const name = lensProp('name');
+    const lastName = lensProp('lastName');
+    const result = view(name, bobo);
+    const boboWithLast = set(lastName, 'Flex', bobo) -- can set new prop on copy of object like this
+*/
 
 // ============================== credit rating
 const scores = [631,604,527,503,800,579,673,513,808,701,833,795];
 const reviewCreditScores = map(score => cond([
-  [lte(800, score), always(`${score} and above is excellent!`)] // 800 is less than or equal to core
-  [lte(700), always(`${score} and above is good`)],
-  [lte(650), always(`${score} and above is fair`)],
-  [always(T), always(`${score} and below is poor`)], // 649 is greater than or equal to score
-])(score));
+  [equals(800), always(`800 and above is excellent!`)] // 800 is less than or equal to core
+  [lte(700), always(`700 and above is good`)],
+  [lte(650), always(`650 and above is fair`)],
+  [always(true), always(`$649 and below is poor`)], // 649 is greater than or equal to score
+]));
 
-// console.log(lte(800, 900));
-
-// console.log('scores', reviewCreditScores(scores));
+// console.log(lte(800, 900)); // true
+// console.log('scores', reviewCreditScores(scores));// not working -- ??
 // ============================== median salary
 
 const toUSD = number => number
@@ -217,6 +229,12 @@ const keepYoungAdults = filter(between28And25);
 // console.log('keepYoungAdults', keepYoungAdults([{"age":20},{"age":16},{"age":18},{"age":26},{"age":25},{"age":19}]));
 
 // ============================== get ages from array of people
+
+const squid = { "name": "Squidward", "lovesTech": false, "worksHard": false, age: 222 };
+const sandy = { "name": "Sandy", "lovesTech": true, "worksHard": true, age: 2 };
+const sponge = { "name": "Spongebob", "lovesTech": false, "worksHard": true, age: 23 };
+
+const friends = [squid, sandy, sponge];
 
 const ages = map(prop('age'));
 

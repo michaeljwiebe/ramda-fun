@@ -2,22 +2,38 @@
 exports.__esModule = true;
 var ramda_1 = require("ramda");
 var ramda_2 = require("ramda");
-// functors are objects that have a value key and a map key. make a new functor by calling the map key 
-// with the value to access it and make a new functor. its 
-var squid = { "name": "Squidward", "lovesTech": false, "worksHard": false, age: 222 };
-var sandy = { "name": "Sandy", "lovesTech": true, "worksHard": true, age: 2 };
-var sponge = { "name": "Spongebob", "lovesTech": false, "worksHard": true, age: 23 };
-var friends = [squid, sandy, sponge];
+/*
+functors
+  -are objects that have a value key and a map key.
+  -copy the functor by calling the map key with the value to access it.
+    const result = map(val => val, functor) => will copy functor to result, can also transform here
+  -map value can be overridden with 'fantasy-land/map`: () => 'overRIDDEN'
+    const functor = {
+      value: 10,
+      'fantasy-land/map': () => 'You have been overridden!'
+    };
+  
+lenses
+  - use to view property of object or copy object and change just lensed value
+    lensProp('name') - use to view property of object
+    lensPath(['department', 'manager', 'firstName']) - use for nested values
+    lens(prop('name'), assoc('name')); - longhand version, prop() allows getting, assoc() setting
+    const bobo = { name: 'Bobo' };
+    const name = lensProp('name');
+    const lastName = lensProp('lastName');
+    const result = view(name, bobo);
+    const boboWithLast = set(lastName, 'Flex', bobo) -- can set new prop on copy of object like this
+*/
 // ============================== credit rating
 var scores = [631, 604, 527, 503, 800, 579, 673, 513, 808, 701, 833, 795];
 var reviewCreditScores = ramda_2.map(function (score) { return ramda_2.cond([
-    [ramda_2.lte(800, score), ramda_2.always(score + " and above is excellent!")] // 800 is less than or equal to core
-    [ramda_2.lte(700), ramda_2.always(score + " and above is good")],
-    [ramda_2.lte(650), ramda_2.always(score + " and above is fair")],
-    [ramda_2.always(ramda_2.T), ramda_2.always(score + " and below is poor")],
-])(score); });
-// console.log(lte(800, 900));
-// console.log('scores', reviewCreditScores(scores));
+    [ramda_2.equals(800), ramda_2.always("800 and above is excellent!")] // 800 is less than or equal to core
+    [ramda_2.lte(700), ramda_2.always("700 and above is good")],
+    [ramda_2.lte(650), ramda_2.always("650 and above is fair")],
+    [ramda_2.always(true), ramda_2.always("$649 and below is poor")],
+]); });
+console.log(ramda_2.lte(800, 900));
+console.log('scores', reviewCreditScores(scores)); // not working -- ??
 // ============================== median salary
 var toUSD = function (number) { return number
     .toLocaleString('en-US', {
@@ -102,6 +118,10 @@ var keepYoungAdults = ramda_2.filter(between28And25);
 // console.log('between18and25', between28And25(friends));
 // console.log('keepYoungAdults', keepYoungAdults([{"age":20},{"age":16},{"age":18},{"age":26},{"age":25},{"age":19}]));
 // ============================== get ages from array of people
+var squid = { "name": "Squidward", "lovesTech": false, "worksHard": false, age: 222 };
+var sandy = { "name": "Sandy", "lovesTech": true, "worksHard": true, age: 2 };
+var sponge = { "name": "Spongebob", "lovesTech": false, "worksHard": true, age: 23 };
+var friends = [squid, sandy, sponge];
 var ages = ramda_2.map(ramda_2.prop('age'));
 // console.log(prop('age', sandy));
 // console.log('map obj', map(add(1), {x: 1, y: 2, z: 3}));
