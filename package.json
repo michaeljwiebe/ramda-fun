@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "test",
-    "run": "tsc src/index.ts; node src/index.js"
+    "run": "tsc src/index.ts; node src/index.js",
+    "ramda": "tsc src/ramdaPractice.ts; node src/ramdaPractice.js",
+    "quizlet": "tsc src/quizlet.ts; node src/quizlet.js"
   },
   "author": "",
   "license": "ISC",
