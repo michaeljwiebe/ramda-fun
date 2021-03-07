@@ -3,38 +3,29 @@
 
 const { JSDOM } = require('jsdom');
 
-function getSubElementsByClassName(element, className) {
+function getSubElementsByClassName(elementChildren, className) {
   let matchingElements = [];
-  Array.from(element.children).forEach(el => {
+  Array.from(elementChildren).forEach(el => {
     if (el.classList.contains(className)) {
       matchingElements.push(el);
     }
     if (el.children) {
-      let subElements = getSubElementsByClassName(el, className);
-      subElements.forEach(subEl => matchingElements.push(subEl));
+      getSubElementsByClassName(el.children, className).forEach(subEl => matchingElements.push(subEl));
     }
   })
   return matchingElements;
 
 }
 
-function getElementsByClassName(doc, className) {
+function getElementsByClassName(element, className) {
   let matchingElements = [];
-  let currentElement = doc;
-  let subMatchingElements = [];
+  let currentElement = element;
 
-
-  while (currentElement.children) {
-    if (currentElement.classList.contains(className)) {
-      matchingElements.push(currentElement);
-    }
-    for (let i = 0; i < currentElement.children.length; i++) {
-      Array.from(currentElement.children).forEach(el => {
-        subMatchingElements += getSubElementsByClassName(el, className)
-      })
-    }
-    currentElement = currentElement.children[i];
+  if (currentElement.classList.contains(className)) {
+    matchingElements.push(currentElement);
   }
+  matchingElements = getSubElementsByClassName(currentElement.children, className);
+    
   return matchingElements;
 }
 

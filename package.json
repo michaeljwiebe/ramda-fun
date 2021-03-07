@@ -6,12 +6,12 @@
   "scripts": {
     "test": "test",
     "run": "tsc src/index.ts; node src/index.js",
-    "ramda": "tsc src/ramdaPractice.ts; node src/ramdaPractice.js",
-    "quizlet": "tsc src/quizlet.ts; node src/quizlet.js"
+    "ramda": "tsc src/ramdaPractice.ts; node src/ramdaPractice.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "jsdom": "^16.2.2",
     "ramda": "^0.27.1"
   },
   "devDependencies": {
