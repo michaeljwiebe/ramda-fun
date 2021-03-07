@@ -3,47 +3,41 @@
 
 const { JSDOM } = require('jsdom');
 
-function getSubElementsByClassName(element, className){
+let count = 0;
+
+function getSubElementsByClassName(elementChildren, className) {
   let matchingElements = [];
-  Array.from(element.children).forEach(el => {
+  Array.from(elementChildren).forEach(el => {
+    count++;
     if (el.classList.contains(className)) {
-      matchingElement.push(el); 
-    }  
+      matchingElements.push(el);
+    }
     if (el.children) {
-      let subElements = getSubElementsByClassName(el, className);
-      subElements.forEach(subEl => matchingElements.push(subEl));
+      getSubElementsByClassName(el.children, className).forEach(subEl => matchingElements.push(subEl));
     }
   })
   return matchingElements;
-  
+
 }
 
-function getElementsByClassName(doc, className) {
+function getElementsByClassName(element, className) {
   let matchingElements = [];
-  let currentElement = doc;
-  let subMatchingElements = [];
 
-  
-  while (currentElement.children) {
-      if (currentElement.classList.contains(className)) {
-        matchingElement.push(currentElement); 
-      }  
-      for (let i = 0; i < currentElement.children.length; i++) {
-        Array.from(currentElement.children).forEach(el => {
-            subMatchingElements += getSubElementsByClassName(el, className)
-        })    
-      }    
-      currentElement = currentElement.children[i];
+  if (element.classList.contains(className)) {
+    matchingElements.push(element);
   }
+  if (element.children) {
+    matchingElements = getSubElementsByClassName(element.children, className);
+  }
+    
   return matchingElements;
 }
 
 
 JSDOM.fromURL("https://developer.mozilla.org/en-US/docs/Web/API/Element").then(dom => {
   const docEl = dom.window.document.documentElement;
-  
   const className = 'external';
-  
+
   // reference method
   const specElements = docEl.getElementsByClassName(className);
   console.log('Spec:', specElements, specElements.length);
@@ -51,6 +45,7 @@ JSDOM.fromURL("https://developer.mozilla.org/en-US/docs/Web/API/Element").then(d
   // your method
   const actualElements = getElementsByClassName(docEl, className);
   console.log('Actual:', actualElements, actualElements.length);
+  console.log('TOTAL NUMBER OF ELEMENTS', count);
 
   if (actualElements.length === specElements.length) {
     console.log('SUCCESS');
