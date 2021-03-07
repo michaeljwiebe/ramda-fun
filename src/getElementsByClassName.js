@@ -16,8 +16,8 @@ function getSubElementsByClassName(elementChildren, className) {
       getSubElementsByClassName(el.children, className).forEach(subEl => matchingElements.push(subEl));
     }
   })
+  
   return matchingElements;
-
 }
 
 function getElementsByClassName(element, className) {
