@@ -10,12 +10,8 @@ console.log(calculate("1+2-3+4-5+6-7")); // => -2
 console.log(calculate("0-1-2-3")); // => -6 
 console.log(calculate("1-2-3-0")); // => -4
 
-
 // n: length of the input string
-
-
 // var splitString6 = string6.split(/split|splat|splot/);
-
 
 "use strict";
 
@@ -40,7 +36,6 @@ function calculate(numString) {
     var char = numString[i];
     if (char === '-' || char === '+') {
       if (lastOperator) {
-        nextOperator = char;
         sum = plusOrMinus(lastOperator, numStr, sum);
       } else {
         sum = Number(numStr);
