@@ -22,7 +22,7 @@ class LinkedList {
     this.head = null;
   }
   insertFirst(data) {
-    let oldHead = Object.assign({},this.head);
+    let oldHead = JSON.parse(JSON.stringify(this.head));
     this.head = new ListNode(data);
     this.head.next = oldHead;
     return this;
@@ -46,7 +46,7 @@ class LinkedList {
     return node;
   };
   findClass(node, className) {
-    let specialNodes = []
+    let specialNodes = [];
     let subSpecialNodes = [];
     while(node.next) {
       if (node.classes && node.classes.contains(className)) {

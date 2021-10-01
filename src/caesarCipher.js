@@ -3,13 +3,13 @@ function caesarCipher(s, k) {
 	var encryptedStr = '';
 	for (let letter of s) {
 		var nextLetter;
-		var capital = letter.toLowerCase() !== letter;
+		var isCapital = letter.toLowerCase() !== letter;
 		var idx = alphabet.indexOf(letter.toLowerCase());
 		if (idx === -1) {
-			nextLetter = capital ? letter.toUpperCase() : letter;
+			nextLetter = isCapital ? letter.toUpperCase() : letter;
 		} else {
 			var encryptedIdx = idx + k >= 26 ? idx + k - 26 : idx + k; 
-			nextLetter = capital ? alphabet[encryptedIdx].toUpperCase() : alphabet[encryptedIdx];
+			nextLetter = isCapital ? alphabet[encryptedIdx].toUpperCase() : alphabet[encryptedIdx];
 		}
 		encryptedStr += nextLetter;
 	}

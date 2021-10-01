@@ -1,7 +1,6 @@
 "use strict";
 exports.__esModule = true;
-var ramda_1 = require("ramda");
-var ramda_2 = require("ramda");
+var ramda = require("ramda");
 /*
 functors
   -are objects that have a value key and a map key.
@@ -26,13 +25,13 @@ lenses
 */
 // ============================== credit rating
 var scores = [631, 604, 527, 503, 800, 579, 673, 513, 808, 701, 833, 795];
-var reviewCreditScores = ramda_2.map(function (score) { return ramda_2.cond([
-    [ramda_2.equals(800), ramda_2.always("800 and above is excellent!")] // 800 is less than or equal to core
-    [ramda_2.lte(700), ramda_2.always("700 and above is good")],
-    [ramda_2.lte(650), ramda_2.always("650 and above is fair")],
-    [ramda_2.always(true), ramda_2.always("$649 and below is poor")],
+var reviewCreditScores = ramda.map(function (score) { return ramda.cond([
+    [ramda.equals(800), ramda.always("800 and above is excellent!")] // 800 is less than or equal to core
+    [ramda.lte(700), ramda.always("700 and above is good")],
+    [ramda.lte(650), ramda.always("650 and above is fair")],
+    [ramda.always(true), ramda.always("$649 and below is poor")],
 ]); });
-console.log(ramda_2.lte(800, 900)); // true
+console.log(ramda.lte(800, 900)); // true
 // console.log('scores', reviewCreditScores(scores));// not working -- ??
 // ============================== median salary
 var toUSD = function (number) { return number
@@ -40,81 +39,81 @@ var toUSD = function (number) { return number
     style: 'currency', currency: 'USD'
 }); };
 var greaterThan100k = function (arr) {
-    return ramda_2.map(function (s) { return ramda_2.gte(s, 100000) ? s : false; }, arr);
+    return ramda.map(function (s) { return ramda.gte(s, 100000) ? s : false; }, arr);
 };
-var getMedianPaycheck = ramda_2.pipe(ramda_2.pluck('salary'), greaterThan100k, ramda_2.filter(function (s) { return s; }), ramda_2.median, function (median) { return median / 12; }, toUSD);
+var getMedianPaycheck = ramda.pipe(ramda.pluck('salary'), greaterThan100k, ramda.filter(function (s) { return s; }), ramda.median, function (median) { return median / 12; }, toUSD);
 // console.log(getMedianPaycheck(employees));
 // ============================== menu exercises
 var filterLessThanPriceImproved = function (price, items) {
-    return ramda_2.filter(ramda_2.propSatisfies(ramda_2.lte(price), 'price'), items);
+    return ramda.filter(ramda.propSatisfies(ramda.lte(price), 'price'), items);
 };
 // console.log('filterLessThanPriceImproved', filterLessThanPriceImproved(12, menu));
 var filterLessThanPrice = function (price, items) {
-    return ramda_2.filter(function (a) { return a.price <= price; }, items);
+    return ramda.filter(function (a) { return a.price <= price; }, items);
 };
 // console.log(curry(filterLessThanPrice)(20));
-var getBottom3 = ramda_2.takeLast(3);
+var getBottom3 = ramda.takeLast(3);
 var getTop3 = function (array) { return [array[0], array[1], array[2]]; };
-var sortByRatingDescend = ramda_2.sort(ramda_2.descend(ramda_2.prop('rating')));
-var sortByRating = ramda_2.sort(ramda_2.prop('rating')); // doesn't actually sort items
+var sortByRatingDescend = ramda.sort(ramda.descend(ramda.prop('rating')));
+var sortByRating = ramda.sort(ramda.prop('rating')); // doesn't actually sort items
 // console.log('sortByRating', sortByRatingDescend(menu));
-var getTop3MealsFor = ramda_2.curry(ramda_2.pipe(filterLessThanPrice, sortByRatingDescend, getTop3));
+var getTop3MealsFor = ramda.curry(ramda.pipe(filterLessThanPrice, sortByRatingDescend, getTop3));
 // console.log('getTop3MealsForCALLED', getTop3(sortByRating(filterLessThanPrice(12, menu))));
 // console.log('getTop3MealsFor', getTop3MealsFor(12)(menu));
 // ============================== cart exercises
-var sortByFirstItem = ramda_2.sortBy(ramda_2.prop(0));
+var sortByFirstItem = ramda.sortBy(ramda.prop(0));
 var pairs = [[-1, 1], [-2, 2], [-3, 3]];
 // console.log('sortByFirstItem', sortByFirstItem(pairs)); //=> [[-3, 3], [-2, 2], [-1, 1]]
-var getCheapestItemNameImproved = (ramda_2.pipe(ramda_2.sortBy(ramda_2.prop('price')), // takes a prop only
-ramda_2.head, ramda_2.prop('name')));
+var getCheapestItemNameImproved = (ramda.pipe(ramda.sortBy(ramda.prop('price')), // takes a prop only
+ramda.head, ramda.prop('name')));
 // console.log('getCheapestItemNameImproved', getCheapestItemNameImproved(cart));
-var getCheapestItemName = (ramda_2.pipe(ramda_2.sort(function (a, b) { return a.price - b.price; }), // takes a function to use for sorting
-ramda_2.head, ramda_2.prop('name')));
+var getCheapestItemName = (ramda.pipe(ramda.sort(function (a, b) { return a.price - b.price; }), // takes a function to use for sorting
+ramda.head, ramda.prop('name')));
 // console.log('getCheapestItemName', getCheapestItemName(cart));
-var getCheapestItemPrice = (ramda_2.pipe(ramda_2.pluck('price'), ramda_2.sort(function (a, b) { return a - b; }), ramda_2.head));
+var getCheapestItemPrice = (ramda.pipe(ramda.pluck('price'), ramda.sort(function (a, b) { return a - b; }), ramda.head));
 // console.log('getCheapestItemPrice', getCheapestItemPrice(cart));
-var getItemPrice = ramda_2.prop('price');
-var getItemPrices = ramda_2.map(function (i) { return getItemPrice(i); });
-var reduceList = ramda_2.reduce(ramda_2.add, 0); // takes fn, accumulator, data
-var getTotalPrice = ramda_2.pipe(getItemPrices, reduceList);
-var getTotalPriceImproved = ramda_2.pipe(ramda_2.pluck('price'), ramda_2.sum);
+var getItemPrice = ramda.prop('price');
+var getItemPrices = ramda.map(function (i) { return getItemPrice(i); });
+var reduceList = ramda.reduce(ramda.add, 0); // takes fn, accumulator, data
+var getTotalPrice = ramda.pipe(getItemPrices, reduceList);
+var getTotalPriceImproved = ramda.pipe(ramda.pluck('price'), ramda.sum);
 // console.log(getTotalPrice(cart));
 // console.log(getTotalPriceImproved(cart));
 // ============================== conditionals
-var findAnimal = ramda_2.cond([
-    [ramda_2.equals('lion'), ramda_2.always('Africa and India')],
-    [ramda_2.equals('tiger'), ramda_2.always('China, Russia, India, Vietnam, and many more')],
-    [ramda_2.equals('hyena'), ramda_2.always('African Savannah')],
-    [ramda_2.equals('grizzly bear'), ramda_2.always('North America')],
-    [ramda_2.always(true), ramda_2.always('Not sure, try Googling it!')]
+var findAnimal = ramda.cond([
+    [ramda.equals('lion'), ramda.always('Africa and India')],
+    [ramda.equals('tiger'), ramda.always('China, Russia, India, Vietnam, and many more')],
+    [ramda.equals('hyena'), ramda.always('African Savannah')],
+    [ramda.equals('grizzly bear'), ramda.always('North America')],
+    [ramda.always(true), ramda.always('Not sure, try Googling it!')]
 ]);
 // console.log(findAnimal('cow'));
 // console.log(findAnimal('hyena'));
 var hasAccess = true;
 var isEven = function (num) { return num % 2 === 0; };
-var logAccess = ramda_2.ifElse(function () { return hasAccess; }, function () { return 'has access'; }, function () { return 'denied'; });
-var doubleIfEven = ramda_2.when(isEven, ramda_2.multiply(2));
-var doubleIfOdd = ramda_2.unless(isEven, ramda_2.multiply(2));
+var logAccess = ramda.ifElse(function () { return hasAccess; }, function () { return 'has access'; }, function () { return 'denied'; });
+var doubleIfEven = ramda.when(isEven, ramda.multiply(2));
+var doubleIfOdd = ramda.unless(isEven, ramda.multiply(2));
 // console.log('logAccess', logAccess());
 // console.log('doubleIfEven', doubleIfEven(23));
 // console.log('doubleIfEven', doubleIfEven(22));
 // console.log('doubleIfOdd', doubleIfOdd(23));
 // console.log('doubleIfOdd', doubleIfOdd(24));
 // ============================== keep young adults
-var defaultTo = ramda_2.curry(function (defaultVal, val) { return val ? val : defaultVal; });
+var defaultTo = ramda.curry(function (defaultVal, val) { return val ? val : defaultVal; });
 var defaultToBobo = defaultTo('Bobo');
 var bilbo = defaultTo('Bilbo');
 // console.log(bilbo(null));
 // console.log(bilbo('Bilbo'));
 // console.log(bilbo('Frodo'));
 var addFourNumbers = function (a, b, c, d) { return a + b + c + d; };
-var curriedAddFourNumbers = ramda_2.curry(addFourNumbers);
+var curriedAddFourNumbers = ramda.curry(addFourNumbers);
 var f = curriedAddFourNumbers(1, 2);
 var g = f(3);
 // console.log('G', g(4)); //=> 10
 // ============================== keep young adults
-var between28And25 = ramda_2.propSatisfies(function (age) { return age >= 18 && age <= 25; }, 'age');
-var keepYoungAdults = ramda_2.filter(between28And25);
+var between28And25 = ramda.propSatisfies(function (age) { return age >= 18 && age <= 25; }, 'age');
+var keepYoungAdults = ramda.filter(between28And25);
 // console.log('between18and25', between28And25(friends));
 // console.log('keepYoungAdults', keepYoungAdults([{"age":20},{"age":16},{"age":18},{"age":26},{"age":25},{"age":19}]));
 // ============================== get ages from array of people
@@ -122,23 +121,23 @@ var squid = { "name": "Squidward", "lovesTech": false, "worksHard": false, age: 
 var sandy = { "name": "Sandy", "lovesTech": true, "worksHard": true, age: 2 };
 var sponge = { "name": "Spongebob", "lovesTech": false, "worksHard": true, age: 23 };
 var friends = [squid, sandy, sponge];
-var ages = ramda_2.map(ramda_2.prop('age'));
+var ages = ramda.map(ramda.prop('age'));
 // console.log(prop('age', sandy));
 // console.log('map obj', map(add(1), {x: 1, y: 2, z: 3}));
 // console.log('map arr', map(add(2), [1, 2, 3]));
 // console.log(ages(friends));
 // ================================ loves tech and works hard?
-var equals3 = ramda_2.equals(3);
+var equals3 = ramda.equals(3);
 // const lovesTech = person => propEq('person.lovesTech', true)();
-var worksHard = ramda_2.propEq('worksHard', true);
-var equalsTrue = ramda_2.equals(true);
+var worksHard = ramda.propEq('worksHard', true);
+var equalsTrue = ramda.equals(true);
 // const lovesTechAndWorksHard = all(equalsTrue, [lovesTech, worksHard]);
-var getName = ramda_2.path(['name']);
+var getName = ramda.path(['name']);
 // const shouldCode = ifElse(lovesTechAndWorksHard,
 //   person => `${getName} may enjoy a tech career!`,
 //   person => `${getName} wouldn't enjoy a tech caree`,
 // );
-var shouldCode = ramda_2.ifElse(ramda_2.where({
+var shouldCode = ramda.ifElse(ramda.where({
     lovesTech: equalsTrue,
     worksHard: equalsTrue
 }), function (p) { return p.name + " should code"; }, function (p) { return p.name + " should NOT code"; });
@@ -160,7 +159,7 @@ var countBoomerangs = function (array) {
     var boomerangs = array.map(function (num, idx) {
         return num === array[idx + 2] && num !== array[idx + 1];
     });
-    return ramda_2.pipe(ramda_2.filter(ramda_2.equals(true)))(boomerangs).length;
+    return ramda.pipe(ramda.filter(ramda.equals(true)))(boomerangs).length;
 };
 // console.log(this.countBoomerangs([9, 5, 9, 5, 1, 1, 1]));
 // console.log(this.countBoomerangs([5, 6, 6, 7, 6, 3, 9]));
@@ -336,7 +335,7 @@ var countBoomerangs = function (array) {
 //   var secondArr = prepArr(strArr[1]);
 //   return intersections.length ? `"${intersections.join(',')}"` : false;
 // }
-var findIntersection = ramda_2.pipe(ramda_2.map(function (a) { return ramda_1["default"].sort(prepArr(a)); }));
+var findIntersection = ramda.pipe(ramda.map(function (a) { return ramda["default"].sort(prepArr(a)); }));
 var sortNums = function (nums) {
     return nums.sort(function (a, b) {
         return a - b;
@@ -349,9 +348,9 @@ var prepArr = function (arr) {
 // console.log(sortNums(prepArr("1, 3, 9, 4, 7, 13")));
 // console.log(findIntersection(["1, 3, 4, 7, 13", "1, 2, 4, 13, 15"]));
 // ================================ UpperAndReverseFirstName
-var getFirstName = function (user) { return ramda_2.pathOr('', ['firstName'], user); };
+var getFirstName = function (user) { return ramda.pathOr('', ['firstName'], user); };
 var upperCase = function (name) { return name.toUpperCase(); };
-var upperAndReverseFirstName = ramda_2.pipe(getFirstName, upperCase, ramda_2.reverse);
+var upperAndReverseFirstName = ramda.pipe(getFirstName, upperCase, ramda.reverse);
 var bobo = {
     firstName: 'Bobo',
     lastName: 'Flakes'
@@ -368,6 +367,6 @@ var users = [{
         lastName: 'User'
     }];
 var upperReversedNames = function (usersArray) { return usersArray.map(function (user) { return upperAndReverseFirstName(user); }); };
-var mapUpper = ramda_2.map(upperAndReverseFirstName);
+var mapUpper = ramda.map(upperAndReverseFirstName);
 // console.log(upperReversedNames(users));
 // console.log(mapUpper(users));
